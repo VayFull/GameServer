@@ -24,7 +24,12 @@ namespace GameServer.Core
             _udpClient.BeginReceive(ReceiveCallback, null);
         }
 
-        public void AddClient(Client client) => _clients.Add(client);
+        // ReSharper disable once RedundantAssignment
+        public void AddClient(Client client, ref int? clientId)
+        {
+            _clients.Add(client);
+            clientId = GetClientsCount();
+        }
 
         private void ReceiveCallback(IAsyncResult ar)
         {
@@ -42,9 +47,18 @@ namespace GameServer.Core
         {
             foreach (var client in _clients)
             {
-                var clientEndpoint = (IPEndPoint) client.GetUdpCLient().Client.LocalEndPoint;
+                var clientEndpoint = client.GetIpEndpoint();
                 _udpClient.BeginSend(bytes, bytes.Length, clientEndpoint, SendCallback, null);
             }
+        }
+
+        public void GroupSend(byte[] bytes, ICollection<Client> clients)
+        {
+            foreach (var client in clients)
+            {
+                var clientEndpoint = client.GetIpEndpoint();
+                _udpClient.BeginSend(bytes, bytes.Length, clientEndpoint, SendCallback, null);
+            }            
         }
 
         private void SendCallback(IAsyncResult ar)
