@@ -15,20 +15,21 @@ namespace GameServer.Core
 
         public Server(string hostname, int port)
         {
-            _udpClient = new UdpClient(port);
             Port = port;
             Hostname = hostname;
+            
+            _udpClient = new UdpClient(port);
             _clients = new List<Client>();
-
+            
             _udpClient.BeginReceive(ReceiveCallback, null);
         }
 
         public void AddClient(Client client) => _clients.Add(client);
 
-        public void ReceiveCallback(IAsyncResult asyncResult)
+        private void ReceiveCallback(IAsyncResult ar)
         {
             var clientEndPoint = new IPEndPoint(IPAddress.Any, 0);
-            var data = _udpClient.EndReceive(asyncResult, ref clientEndPoint);
+            var data = _udpClient.EndReceive(ar, ref clientEndPoint);
             _udpClient.BeginReceive(ReceiveCallback, null);
 
             if (data.Length < 1)
