@@ -38,6 +38,21 @@ namespace GameServer.Core
             Console.WriteLine(Encoding.ASCII.GetString(data));
         }
 
+        public void Broadcast(byte[] bytes)
+        {
+            foreach (var client in _clients)
+            {
+                var clientEndpoint = (IPEndPoint) client.GetUdpCLient().Client.LocalEndPoint;
+                _udpClient.BeginSend(bytes, bytes.Length, clientEndpoint, SendCallback, null);
+            }
+        }
+
+        private void SendCallback(IAsyncResult ar)
+        {
+            _udpClient.EndSend(ar);
+            Console.WriteLine("broadcast sent");
+        }
+
         public int GetClientsCount() => _clients.Count;
     }
 }

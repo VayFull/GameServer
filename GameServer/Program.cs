@@ -20,6 +20,10 @@ namespace GameServer
             
             client.SendBytesAsync(sendBytes);
             client2.SendBytesAsync(sendBytes2);
+            
+            var serverBytes = Encoding.ASCII.GetBytes("Yes");
+            
+            server.Broadcast(serverBytes);
         }
     }
 }
