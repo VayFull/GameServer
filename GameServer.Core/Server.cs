@@ -11,7 +11,7 @@ namespace GameServer.Core
         private readonly UdpClient _udpClient;
         public int Port { get; }
         public string Hostname { get; }
-        private readonly ICollection<Client> _clients;
+        private readonly ICollection<IPEndPoint> _clients;
 
         public Server(string hostname, int port)
         {
@@ -19,16 +19,16 @@ namespace GameServer.Core
             Hostname = hostname;
             
             _udpClient = new UdpClient(port);
-            _clients = new List<Client>();
-            
+            _clients = new List<IPEndPoint>();
+
             _udpClient.BeginReceive(ReceiveCallback, null);
         }
 
         // ReSharper disable once RedundantAssignment
-        public void AddClient(Client client, ref int? clientId)
+        public void AddClient(IPEndPoint client)
         {
             _clients.Add(client);
-            clientId = GetClientsCount();
+            Console.WriteLine($"Client with id {GetClientsCount()} successfully added");
         }
 
         private void ReceiveCallback(IAsyncResult ar)
@@ -40,31 +40,48 @@ namespace GameServer.Core
             if (data.Length < 1)
                 return;
 
+            var result = Encoding.ASCII.GetString(data);
+
+            if (result == "hello")
+            {
+                AddClient(clientEndPoint);
+                SendClientId(GetClientsCount(), clientEndPoint);
+            }
+
             Console.WriteLine(Encoding.ASCII.GetString(data));
+        }
+
+        private void SendClientId(int id, IPEndPoint client)
+        {
+            var bytes = Encoding.ASCII.GetBytes($"id:{id.ToString()}");
+            Send(bytes, client);
         }
 
         public void Broadcast(byte[] bytes)
         {
             foreach (var client in _clients)
             {
-                var clientEndpoint = client.GetIpEndpoint();
-                _udpClient.BeginSend(bytes, bytes.Length, clientEndpoint, SendCallback, null);
+                Send(bytes, client);
             }
         }
 
-        public void GroupSend(byte[] bytes, ICollection<Client> clients)
+        private void Send(byte[] bytes, IPEndPoint clientEndPoints)
+        {
+            _udpClient.BeginSend(bytes, bytes.Length, clientEndPoints, SendCallback, null);
+        }
+
+        public void GroupSend(byte[] bytes, ICollection<IPEndPoint> clients)
         {
             foreach (var client in clients)
             {
-                var clientEndpoint = client.GetIpEndpoint();
-                _udpClient.BeginSend(bytes, bytes.Length, clientEndpoint, SendCallback, null);
+                Send(bytes, client);
             }            
         }
 
         private void SendCallback(IAsyncResult ar)
         {
             _udpClient.EndSend(ar);
-            Console.WriteLine("broadcast sent");
+            Console.WriteLine("sent");
         }
 
         public int GetClientsCount() => _clients.Count;
