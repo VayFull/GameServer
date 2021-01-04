@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameServer", "GameServer\GameServer.csproj", "{7EB042F8-E1C1-487C-80B6-340E4ED35125}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameServer.Core", "GameServer.Core\GameServer.Core.csproj", "{1104C436-07AB-4E3A-92A6-086571618A54}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7EB042F8-E1C1-487C-80B6-340E4ED35125}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EB042F8-E1C1-487C-80B6-340E4ED35125}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EB042F8-E1C1-487C-80B6-340E4ED35125}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EB042F8-E1C1-487C-80B6-340E4ED35125}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1104C436-07AB-4E3A-92A6-086571618A54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1104C436-07AB-4E3A-92A6-086571618A54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1104C436-07AB-4E3A-92A6-086571618A54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1104C436-07AB-4E3A-92A6-086571618A54}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
