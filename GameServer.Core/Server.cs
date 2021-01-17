@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Text;
+using GameServer.Core.Builders;
+using GameServer.Core.Handlers;
+using GameServer.Core.Models;
 
 namespace GameServer.Core
 {
@@ -11,24 +16,31 @@ namespace GameServer.Core
         private readonly UdpClient _udpClient;
         public int Port { get; }
         public string Hostname { get; }
-        private readonly ICollection<IPEndPoint> _clients;
+        private readonly Dictionary<int, Client> _clients;
+        private readonly ServerReceiveHandler _serverReceiveHandler;
+        private readonly ServerSendHandler _serverSendHandler;
 
         public Server(string hostname, int port)
         {
             Port = port;
             Hostname = hostname;
-            
+
+            _serverReceiveHandler = new ServerReceiveHandler(this);
+            _serverSendHandler = new ServerSendHandler(this);
+
             _udpClient = new UdpClient(port);
-            _clients = new List<IPEndPoint>();
+            _clients = new Dictionary<int, Client>();
 
             _udpClient.BeginReceive(ReceiveCallback, null);
         }
 
         // ReSharper disable once RedundantAssignment
-        public void AddClient(IPEndPoint client)
+        public int AddAndGetClientId(Client client)
         {
-            _clients.Add(client);
+            var newClientId = _clients.Count;
+            _clients[_clients.Count] = client;
             Console.WriteLine($"Client with id {GetClientsCount()} successfully added");
+            return newClientId;
         }
 
         private void ReceiveCallback(IAsyncResult ar)
@@ -44,28 +56,29 @@ namespace GameServer.Core
 
             if (result == "hello")
             {
-                AddClient(clientEndPoint);
-                SendClientId(GetClientsCount(), clientEndPoint);
+                _serverReceiveHandler.ReceiveHelloPacket();
+
+                var newClientId = AddAndGetClientId(new Client(clientEndPoint, new Vector3(0, 2, 0)));
+                _serverSendHandler.SendClientId(
+                    SendPacketBuilder.HelloSendPacket(newClientId, clientEndPoint, _clients));
+
+                _serverSendHandler.SendAllClientsNewClient(
+                    SendPacketBuilder.AllClientsNewClientSendPacket(newClientId, _clients));
+            }
+
+            if (result.StartsWith("id="))
+            {
+                var receivePacket = _serverReceiveHandler.ReceivePositionPacket(result);
+                _clients[receivePacket.ClientId].Position = receivePacket.Position;
+
+                _serverSendHandler.SendAllClientsClientPosition(
+                    SendPacketBuilder.AllClientsClientPositionSendPacket(receivePacket.ClientId, data, _clients));
             }
 
             Console.WriteLine(Encoding.ASCII.GetString(data));
         }
-
-        private void SendClientId(int id, IPEndPoint client)
-        {
-            var bytes = Encoding.ASCII.GetBytes($"id:{id.ToString()}");
-            Send(bytes, client);
-        }
-
-        public void Broadcast(byte[] bytes)
-        {
-            foreach (var client in _clients)
-            {
-                Send(bytes, client);
-            }
-        }
-
-        private void Send(byte[] bytes, IPEndPoint clientEndPoints)
+        
+        public void Send(byte[] bytes, IPEndPoint clientEndPoints)
         {
             _udpClient.BeginSend(bytes, bytes.Length, clientEndPoints, SendCallback, null);
         }
@@ -75,7 +88,7 @@ namespace GameServer.Core
             foreach (var client in clients)
             {
                 Send(bytes, client);
-            }            
+            }
         }
 
         private void SendCallback(IAsyncResult ar)
