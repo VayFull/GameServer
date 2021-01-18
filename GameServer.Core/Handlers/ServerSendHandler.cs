@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -21,11 +22,12 @@ namespace GameServer.Core.Handlers
             foreach (var packetClient in sendPacket.Clients)
             {
                 var position = packetClient.Value.Position;
-                result += $"{packetClient.Key},{position.X}:{position.Y}:{position.Z}";
+                result += $"{packetClient.Key}?{position.X}:{position.Y}:{position.Z}";
             }
 
             var bytes = Encoding.ASCII.GetBytes(result);
             Server.Send(bytes, sendPacket.IpEndPoint);
+            Console.WriteLine($"sent:{result}");
         }
 
         public void SendAllClientsNewClient(SendPacket sendPacket)

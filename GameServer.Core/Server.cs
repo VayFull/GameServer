@@ -47,7 +47,6 @@ namespace GameServer.Core
         {
             var clientEndPoint = new IPEndPoint(IPAddress.Any, 0);
             var data = _udpClient.EndReceive(ar, ref clientEndPoint);
-            _udpClient.BeginReceive(ReceiveCallback, null);
 
             if (data.Length < 1)
                 return;
@@ -66,7 +65,7 @@ namespace GameServer.Core
                     SendPacketBuilder.AllClientsNewClientSendPacket(newClientId, _clients));
             }
 
-            if (result.StartsWith("id="))
+            if (result.StartsWith("pos="))
             {
                 var receivePacket = _serverReceiveHandler.ReceivePositionPacket(result);
                 _clients[receivePacket.ClientId].Position = receivePacket.Position;
@@ -76,6 +75,7 @@ namespace GameServer.Core
             }
 
             Console.WriteLine(Encoding.ASCII.GetString(data));
+            _udpClient.BeginReceive(ReceiveCallback, null);
         }
         
         public void Send(byte[] bytes, IPEndPoint clientEndPoints)
