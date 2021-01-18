@@ -37,8 +37,13 @@ namespace GameServer.Core
         // ReSharper disable once RedundantAssignment
         public int AddAndGetClientId(Client client)
         {
-            var newClientId = _clients.Count;
-            _clients[_clients.Count] = client;
+            var newClientId = 0;
+            if (_clients.Any())
+                newClientId = _clients.Keys.Max() + 1;
+            else
+                newClientId = 1;
+
+            _clients[newClientId] = client;
             Console.WriteLine($"Client with id {GetClientsCount()} successfully added");
             return newClientId;
         }
@@ -74,10 +79,19 @@ namespace GameServer.Core
                     SendPacketBuilder.AllClientsClientPositionSendPacket(receivePacket.ClientId, data, _clients));
             }
 
+            if (result.StartsWith("disconnect:"))
+            {
+                var receivePacket = _serverReceiveHandler.ReceiveDisconnectPacket(result);
+                _clients.Remove(receivePacket.ClientId);
+
+                _serverSendHandler.SendAllClientsClientDisconnect(
+                    SendPacketBuilder.AllClientsDisconnectClientSendPacket(receivePacket.ClientId, _clients));
+            }
+
             Console.WriteLine(Encoding.ASCII.GetString(data));
             _udpClient.BeginReceive(ReceiveCallback, null);
         }
-        
+
         public void Send(byte[] bytes, IPEndPoint clientEndPoints)
         {
             _udpClient.BeginSend(bytes, bytes.Length, clientEndPoints, SendCallback, null);

@@ -51,5 +51,13 @@ namespace GameServer.Core.Handlers
             var group = GetGroupIpEndPoints(sendPacket);
             Server.GroupSend(sendPacket.Data, group);
         }
+
+        public void SendAllClientsClientDisconnect(SendPacket sendPacket)
+        {
+            var result = $"disconnect:{sendPacket.ClientId}";
+            var bytes = Encoding.ASCII.GetBytes(result);
+            var group = GetGroupIpEndPoints(sendPacket);
+            Server.GroupSend(bytes, group);
+        }
     }
 }

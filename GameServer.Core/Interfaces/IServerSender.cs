@@ -8,5 +8,6 @@ namespace GameServer.Core.Interfaces
         void SendClientId(SendPacket sendPacket);
         void SendAllClientsNewClient(SendPacket sendPacket);
         void SendAllClientsClientPosition(SendPacket sendPacket);
+        void SendAllClientsClientDisconnect(SendPacket sendPacket);
     }
 }

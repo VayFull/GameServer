@@ -32,5 +32,14 @@ namespace GameServer.Core.Handlers
                 ClientId = clientId
             };
         }
+
+        public ReceivePacket ReceiveDisconnectPacket(string result)
+        {
+            var stringedId = result.Split(':')[1];
+            return new ReceivePacket
+            {
+                ClientId = int.Parse(stringedId)
+            };
+        }
     }
 }

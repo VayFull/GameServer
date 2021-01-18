@@ -44,6 +44,15 @@ namespace GameServer.Core.Builders
             };
         }
 
+        public static SendPacket AllClientsDisconnectClientSendPacket(int clientId, Dictionary<int, Client> clients)
+        {
+            return new SendPacket
+            {
+                ClientId = clientId,
+                Clients = clients
+            };
+        }
+
         private static Dictionary<int, Client> GetAllClientsExceptCurrentClient(int clientId,
             Dictionary<int, Client> clients)
         {
