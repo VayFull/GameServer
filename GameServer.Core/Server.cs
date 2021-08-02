@@ -62,7 +62,8 @@ namespace GameServer.Core
             {
                 _serverReceiveHandler.ReceiveHelloPacket();
 
-                var newClientId = AddAndGetClientId(new Client(clientEndPoint, new Vector3(0, 2, 0)));
+                var newClientId =
+                    AddAndGetClientId(new Client(clientEndPoint, new Vector3(0, 2, 0), new Vector3(0, 2, 0)));
                 _serverSendHandler.SendClientId(
                     SendPacketBuilder.HelloSendPacket(newClientId, clientEndPoint, _clients));
 
@@ -72,10 +73,11 @@ namespace GameServer.Core
 
             if (result.StartsWith("pos="))
             {
-                var receivePacket = _serverReceiveHandler.ReceivePositionPacket(result);
+                var receivePacket = _serverReceiveHandler.ReceivePositionRotationPacket(result);
                 _clients[receivePacket.ClientId].Position = receivePacket.Position;
+                _clients[receivePacket.ClientId].Rotation = receivePacket.Rotation;
 
-                _serverSendHandler.SendAllClientsClientPosition(
+                _serverSendHandler.SendAllClientsClientPositionAndRotation(
                     SendPacketBuilder.AllClientsClientPositionSendPacket(receivePacket.ClientId, data, _clients));
             }
 

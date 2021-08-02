@@ -22,9 +22,15 @@ namespace GameServer.Core.Handlers
             foreach (var packetClient in sendPacket.Clients)
             {
                 var position = packetClient.Value.Position;
-                result += $"{packetClient.Key}?{position.X}:{position.Y}:{position.Z}";
+                var rotation = packetClient.Value.Rotation;
+                result += $"{packetClient.Key}?{position.X}:{position.Y}:{position.Z}?{rotation.X}:{rotation.Y}:{rotation.Z}&";
             }
 
+            if (result.EndsWith('&'))
+            {
+                result = result.Remove(result.Length - 1, 1);
+            }
+            
             var bytes = Encoding.ASCII.GetBytes(result);
             Server.Send(bytes, sendPacket.IpEndPoint);
             Console.WriteLine($"sent:{result}");
@@ -46,7 +52,7 @@ namespace GameServer.Core.Handlers
             return group;
         }
 
-        public void SendAllClientsClientPosition(SendPacket sendPacket)
+        public void SendAllClientsClientPositionAndRotation(SendPacket sendPacket)
         {
             var group = GetGroupIpEndPoints(sendPacket);
             Server.GroupSend(sendPacket.Data, group);

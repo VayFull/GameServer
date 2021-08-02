@@ -17,19 +17,26 @@ namespace GameServer.Core.Handlers
             return null;
         }
 
-        public ReceivePacket ReceivePositionPacket(string result)
+        public ReceivePacket ReceivePositionRotationPacket(string result)
         {
-            var points = result
+            var positionPoints = result
                 .Split('?')[1]
                 .Split(':');
             
-            var position = new Vector3(float.Parse(points[0]), float.Parse(points[1]), float.Parse(points[2]));
+            var rotationPoints = result
+                .Split('?')[2]
+                .Split(':');
+            
+            var position = new Vector3(float.Parse(positionPoints[0]), float.Parse(positionPoints[1]), float.Parse(positionPoints[2]));
+            var rotation = new Vector3(float.Parse(rotationPoints[0]), float.Parse(rotationPoints[1]), float.Parse(rotationPoints[2]));
+            
             var clientId = int.Parse(result.Split('&')[0].Split('=')[1]);
             
             return new ReceivePacket
             {
                 Position = position,
-                ClientId = clientId
+                ClientId = clientId,
+                Rotation = rotation
             };
         }
 
