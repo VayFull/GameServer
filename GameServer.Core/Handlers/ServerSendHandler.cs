@@ -65,5 +65,12 @@ namespace GameServer.Core.Handlers
             var group = GetGroupIpEndPoints(sendPacket);
             Server.GroupSend(bytes, group);
         }
+        
+        public void SendTestPacket(SendPacket sendPacket)
+        {
+            var result = $"test:{sendPacket.ClientId}";
+            var bytes = Encoding.ASCII.GetBytes(result);
+            Server.Send(bytes, sendPacket.IpEndPoint);
+        }
     }
 }

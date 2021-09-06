@@ -58,6 +58,14 @@ namespace GameServer.Core
 
             var result = Encoding.ASCII.GetString(data);
 
+            if (result.StartsWith("test:"))
+            {
+                var receivePacket = _serverReceiveHandler.ReceiveTestPacket(result);
+                
+                _serverSendHandler.SendTestPacket(
+                    SendPacketBuilder.TestPacketSendPacket(clientEndPoint, receivePacket.ClientId));
+            }
+
             if (result == "hello")
             {
                 _serverReceiveHandler.ReceiveHelloPacket();
@@ -90,7 +98,7 @@ namespace GameServer.Core
                     SendPacketBuilder.AllClientsDisconnectClientSendPacket(receivePacket.ClientId, _clients));
             }
 
-            Console.WriteLine(Encoding.ASCII.GetString(data));
+            Console.WriteLine($"server received: {Encoding.ASCII.GetString(data)}");
             _udpClient.BeginReceive(ReceiveCallback, null);
         }
 
@@ -110,7 +118,7 @@ namespace GameServer.Core
         private void SendCallback(IAsyncResult ar)
         {
             _udpClient.EndSend(ar);
-            Console.WriteLine("sent");
+            Console.WriteLine("server sent callback");
         }
 
         public int GetClientsCount() => _clients.Count;

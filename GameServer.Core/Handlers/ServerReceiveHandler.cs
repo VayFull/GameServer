@@ -48,5 +48,14 @@ namespace GameServer.Core.Handlers
                 ClientId = int.Parse(stringedId)
             };
         }
+        
+        public ReceivePacket ReceiveTestPacket(string result)
+        {
+            var stringedId = result.Split(':')[1];
+            return new ReceivePacket
+            {
+                ClientId = int.Parse(stringedId)
+            };
+        }
     }
 }

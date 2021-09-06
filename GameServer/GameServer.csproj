@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\GameServer.Const\GameServer.Const.csproj" />
       <ProjectReference Include="..\GameServer.Core\GameServer.Core.csproj" />
     </ItemGroup>
 

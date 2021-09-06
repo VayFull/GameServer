@@ -52,6 +52,15 @@ namespace GameServer.Core.Builders
                 Clients = clients
             };
         }
+        
+        public static SendPacket TestPacketSendPacket(IPEndPoint ipEndPoint, int clientId)
+        {
+            return new SendPacket
+            {
+                IpEndPoint = ipEndPoint,
+                ClientId = clientId
+            };
+        }
 
         private static Dictionary<int, Client> GetAllClientsExceptCurrentClient(int clientId,
             Dictionary<int, Client> clients)
